@@ -1,4 +1,4 @@
 package com.biblioteca_web.dto;
 
-public class EditaLivroDto {
+public class CadastrarLivroDto {
 }

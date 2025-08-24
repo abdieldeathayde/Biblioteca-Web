@@ -2,7 +2,7 @@ package com.biblioteca_web.infraestructure.entities;
 
 import java.util.Date;
 
-public class Biblioteca {
+public class Livro {
     int id;
     String titulo;
     String autor;
