@@ -1,10 +1,10 @@
 package com.biblioteca_web.business;
 
-public class BibliotecaService {
-    criarLivro();
-    criarListaLivro();
-    buscarLivro();
-    buscarListaLivro();
-    deletarLivro();
-    atualizarLivro();
+public interface BibliotecaService {
+    void criarLivro();
+    void criarListaLivro();
+    void buscarLivro();
+    void buscarListaLivro();
+    void deletarLivro();
+    void atualizarLivro();
 }
