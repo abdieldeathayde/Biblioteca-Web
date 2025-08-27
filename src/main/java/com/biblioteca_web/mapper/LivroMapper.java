@@ -1,27 +1,35 @@
 package com.biblioteca_web.mapper;
 
 import com.biblioteca_web.dto.AtualizaLivroDto;
+import com.biblioteca_web.dto.CadastrarLivroDto;
 import com.biblioteca_web.dto.LivroDto;
+import com.biblioteca_web.dto.response.RespostaCadastroLivroDTO;
 import com.biblioteca_web.infraestructure.entities.Livro;
+import jakarta.validation.Valid;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
-public class LivroMapper {
-    public Livro toEntity(List<Livro> dto) {
+@Mapper(componentModel = "spring")
+public interface LivroMapper {
 
-    }
+    LivroDto toDto(Livro livro);
 
-    public LivroDto toDto(Livro usuario) {
-    }
+    // Converter DTO individual para entidade
+    Livro toEntity(CadastrarLivroDto dto);
 
-    public List<LivroDto> converteLista(List<Livro> user) {
-    }
+    List<LivroDto> listaDtoList(List<Livro> livros);
 
-    public void atualizaDto(AtualizaLivroDto dto, Livro livro) {
-    }
+    List<RespostaCadastroLivroDTO> converteLista(List<Livro> livros);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void atualizaDto(AtualizaLivroDto dto, @MappingTarget Livro livro);
 
-    public List<Livro> toEntityList(List<LivroDto> dtoList) {
-        return List.of();
-    }
+    // Agora MapStruct consegue mapear cada elemento da lista automaticamente
+    List<Livro> toEntityList(@Valid List<CadastrarLivroDto> dtoList);
+
+    List<RespostaCadastroLivroDTO> toRespostaCadastroLivroDTOList(List<Livro> livros);
 }
