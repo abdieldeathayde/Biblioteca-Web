@@ -53,7 +53,7 @@ public class LivroService {
     public List<LivroDto> salvarLivros(List<CadastrarLivroDto> dtoList) {
         List<Livro> livros = dtoList.stream()
                 .map(dto -> {
-                    Livro livro = new Livro(dto.titulo());
+                    Livro livro = new Livro();
                     livro.setNome(dto.nome());
                     livro.setTitulo(dto.titulo());
                     livro.setCategoria(dto.categoria());

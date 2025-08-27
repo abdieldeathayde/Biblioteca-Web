@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-27T13:10:35-0300",
+    date = "2025-08-27T13:40:58-0300",
     comments = "version: 1.6.3, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -43,12 +43,9 @@ public class LivroMapperImpl implements LivroMapper {
             return null;
         }
 
-        String titulo = null;
+        Livro livro = new Livro();
 
-        titulo = dto.titulo();
-
-        Livro livro = new Livro( titulo );
-
+        livro.setTitulo( dto.titulo() );
         livro.setIsbn( dto.isbn() );
         livro.setNome( dto.nome() );
         livro.setCategoria( dto.categoria() );

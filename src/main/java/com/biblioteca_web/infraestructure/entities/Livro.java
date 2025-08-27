@@ -19,11 +19,12 @@ public class Livro {
     private String isbn;
     private String nome;
     private String categoria;
+
     private LocalDate dataPublicacao = LocalDate.now();
 
 
-    public Livro(String titulo) {
-        this.titulo = titulo;
+    @PrePersist
+    public void prePersist() {
         this.dataPublicacao = LocalDate.now();
     }
 
