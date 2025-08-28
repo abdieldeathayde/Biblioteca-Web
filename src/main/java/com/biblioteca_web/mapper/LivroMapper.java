@@ -21,6 +21,8 @@ public interface LivroMapper {
     // Converter DTO individual para entidade
     Livro toEntity(CadastrarLivroDto dto);
 
+
+
     List<LivroDto> listaDtoList(List<Livro> livros);
 
     List<RespostaCadastroLivroDTO> converteLista(List<Livro> livros);
@@ -28,7 +30,7 @@ public interface LivroMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void atualizaDto(AtualizaLivroDto dto, @MappingTarget Livro livro);
 
-    // Agora MapStruct consegue mapear cada elemento da lista automaticamente
+    // Mapear lista de DTOs para lista de entidades
     List<Livro> toEntityList(@Valid List<CadastrarLivroDto> dtoList);
 
     List<RespostaCadastroLivroDTO> toRespostaCadastroLivroDTOList(List<Livro> livros);

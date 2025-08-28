@@ -25,7 +25,7 @@ public class LivroController {
 
     @PostMapping
     public ResponseEntity<List<LivroDto>> cadastrarLivro(@RequestBody @Valid List<CadastrarLivroDto> livroDto) {
-        List<LivroDto> livroCadastrado = livroService.cadastrarLivros(livroDto);
+        List<LivroDto> livroCadastrado = livroService.salvarLivros(livroDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(livroCadastrado);
     }
 
