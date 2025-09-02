@@ -4,6 +4,7 @@ import com.biblioteca_web.business.LivroService;
 import com.biblioteca_web.dto.AtualizaLivroDto;
 import com.biblioteca_web.dto.CadastrarLivroDto;
 import com.biblioteca_web.dto.LivroDto;
+import com.biblioteca_web.exception.ExceptionPersonalizada;
 import com.biblioteca_web.infraestructure.entities.Livro;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/livros")
@@ -30,21 +32,21 @@ public class LivroController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LivroDto>> buscarLivroPorTitulo() {
+    public ResponseEntity<List<LivroDto>> listarTodos() {
         List<LivroDto> livroDto = livroService.listarLivros();
         return ResponseEntity.ok(livroDto);
     }
 
     @SneakyThrows
     @GetMapping("/filtrar")
-    public ResponseEntity<List<LivroDto>> listarLivros(@RequestBody List<Livro> livro) {
+    public ResponseEntity<List<LivroDto>> listarFiltrados(@RequestBody List<Livro> livro) {
         List<LivroDto> livroDto = livroService.listarLivros();
         return ResponseEntity.ok(livroDto);
     }
 
     @DeleteMapping
     public ResponseEntity<String> deletarLivroPorTitulo(
-        @RequestParam @NotBlank(message = "O titulo é obrigatório") String titulo) {
+            @RequestParam @NotBlank(message = "O titulo é obrigatório") String titulo) {
         livroService.deletarLivroPorTitulo(titulo);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Livro deletado com sucesso!");
     }
@@ -53,12 +55,14 @@ public class LivroController {
     public ResponseEntity<LivroDto> atualizarLivroPorTitulo(
             @RequestParam @NotNull(message = "O titulo não pode ser nulo!") String titulo,
             @RequestBody @Valid AtualizaLivroDto livroDto){
-            LivroDto livroAtualizado = (LivroDto) livroService.atualizarLivroPorId(titulo, livroDto);
-            return  ResponseEntity.ok(livroAtualizado);
+        LivroDto livroAtualizado = livroService.atualizarLivroPorTitulo(titulo, livroDto);
+        return ResponseEntity.ok(livroAtualizado);
     }
 
-
-
-
-
+    @PatchMapping("/{titulo}")
+    public ResponseEntity<LivroDto> atualizarParcialmente(@PathVariable String titulo,
+                                                          @RequestBody Map<String, Object> updates) throws ExceptionPersonalizada {
+        LivroDto recursoAtualizado = livroService.atualizarParcial(titulo, updates);
+        return ResponseEntity.ok(recursoAtualizado);
+    }
 }

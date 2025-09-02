@@ -10,18 +10,17 @@ import com.biblioteca_web.mapper.LivroMapper;
 import com.biblioteca_web.validador.LivroValidador;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class LivroService {
 
-    @Autowired
     private final LivroRepository livroRepository;
     private final LivroValidador livroValidador;
     private final LivroMapper livroMapper;
@@ -31,33 +30,26 @@ public class LivroService {
      */
     public LivroDto salvarLivro(@Valid CadastrarLivroDto dto) {
         Livro livro = livroMapper.toEntity(dto);
-        // Se não vier data de publicação, usar a data atual
-        if (livro.getDataPublicacao() == null) {
-            livro.setDataPublicacao(LocalDate.now());
-        }
         livroRepository.save(livro);
         return livroMapper.toDto(livro);
     }
+
 
     /**
      * Cadastrar uma lista de livros
      */
     public List<LivroDto> salvarLivros(@Valid List<CadastrarLivroDto> dtoList) {
         List<Livro> livros = livroMapper.toEntityList(dtoList);
-        livros.forEach(l -> {
-            if (l.getDataPublicacao() == null) {
-                l.setDataPublicacao(LocalDate.now());
-            }
-        });
-        List<Livro> livrosSalvos = livroRepository.saveAll(livros);
-        return livroMapper.listaDtoList(livrosSalvos);
+        List<Livro> salvos = livroRepository.saveAll(livros);
+        return livroMapper.toDtoList(salvos);
     }
 
+
     /**
-     * Buscar livros por título
+     * Buscar livro por título
      */
-    public List<Livro> buscarLivroPorTitulo(String titulo) {
-        return livroValidador.buscaLivroOuLancaException(titulo);
+    public List<Livro> buscarLivroPorTitulo(String titulo) throws ExceptionPersonalizada {
+        return livroRepository.findByTitulo(titulo);
     }
 
     /**
@@ -66,22 +58,24 @@ public class LivroService {
     public List<LivroDto> buscarTodos() throws ExceptionPersonalizada {
         List<Livro> livros = livroRepository.findAll();
         livroValidador.validaSeListaEstaVazia(livros);
-        return livroMapper.listaDtoList(livros);
+        return livroMapper.toDtoList(livros);
     }
 
     /**
      * Deletar livro pelo título
      */
     public void deletarLivroPorTitulo(String titulo) {
-        Livro livro = livroValidador.buscaLivroOuLancaException(titulo).get(0);
-        livroRepository.delete(livro);
+        List<Livro> livros = livroValidador.buscaLivroOuLancaException(titulo);
+        livroRepository.deleteAll(livros);
     }
 
+
+
     /**
-     * Atualizar livro por autor
+     * Atualizar livro por título (ou autor, se quiser)
      */
-    public LivroDto atualizarLivroPorId(String autor, AtualizaLivroDto dto) {
-        Livro livro = (Livro) livroValidador.validaSeLivroExiste(autor);
+    public LivroDto atualizarLivroPorTitulo(String titulo, AtualizaLivroDto dto) {
+        Livro livro = (Livro) livroValidador.validaSeLivroExiste(titulo);
         livroMapper.atualizaDto(dto, livro);
         livroRepository.save(livro);
         return livroMapper.toDto(livro);
@@ -91,8 +85,7 @@ public class LivroService {
      * Listar todos os livros (versão manual sem mapper)
      */
     public List<LivroDto> listarLivros() {
-        List<Livro> livros = livroRepository.findAll();
-        return livros.stream()
+        return livroRepository.findAll().stream()
                 .map(l -> new LivroDto(
                         l.getId(),
                         l.getNome(),
@@ -103,4 +96,30 @@ public class LivroService {
                 ))
                 .collect(Collectors.toList());
     }
+
+
+
+    /**
+     * Atualização parcial (PATCH)
+     */
+
+
+
+    public LivroDto atualizarParcial(String titulo, Map<String, Object> updates) throws ExceptionPersonalizada {
+        Livro livro = (Livro) buscarLivroPorTitulo(titulo);
+
+        updates.forEach((campo, valor) -> {
+            switch (campo) {
+                case "nome" -> livro.setNome((String) valor);
+                case "titulo" -> livro.setTitulo((String) valor);
+                case "categoria" -> livro.setCategoria((String) valor);
+                case "isbn" -> livro.setIsbn((String) valor);
+                case "dataPublicacao" -> livro.setDataPublicacao(LocalDate.parse((String) valor));
+            }
+        });
+
+        livroRepository.save(livro);
+        return livroMapper.toDto(livro);
+    }
+
 }
