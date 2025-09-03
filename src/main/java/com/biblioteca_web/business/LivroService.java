@@ -25,65 +25,45 @@ public class LivroService {
     private final LivroValidador livroValidador;
     private final LivroMapper livroMapper;
 
-    /**
-     * Cadastrar um único livro
-     */
     public LivroDto salvarLivro(@Valid CadastrarLivroDto dto) {
         Livro livro = livroMapper.toEntity(dto);
         livroRepository.save(livro);
         return livroMapper.toDto(livro);
     }
 
-
-    /**
-     * Cadastrar uma lista de livros
-     */
     public List<LivroDto> salvarLivros(@Valid List<CadastrarLivroDto> dtoList) {
         List<Livro> livros = livroMapper.toEntityList(dtoList);
         List<Livro> salvos = livroRepository.saveAll(livros);
         return livroMapper.toDtoList(salvos);
     }
 
-
-    /**
-     * Buscar livro por título
-     */
     public List<Livro> buscarLivroPorTitulo(String titulo) throws ExceptionPersonalizada {
         return livroRepository.findByTitulo(titulo);
     }
 
-    /**
-     * Buscar todos os livros
-     */
     public List<LivroDto> buscarTodos() throws ExceptionPersonalizada {
         List<Livro> livros = livroRepository.findAll();
         livroValidador.validaSeListaEstaVazia(livros);
         return livroMapper.toDtoList(livros);
     }
 
-    /**
-     * Deletar livro pelo título
-     */
-    public void deletarLivroPorTitulo(String titulo) {
-        List<Livro> livros = livroValidador.buscaLivroOuLancaException(titulo);
-        livroRepository.deleteAll(livros);
+    public void deletarLivroPorId(Long id) {
+        Livro livro = livroRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Livro com ID " + id + " não encontrado"));
+        livroRepository.delete(livro);
     }
 
 
 
-    /**
-     * Atualizar livro por título (ou autor, se quiser)
-     */
-    public LivroDto atualizarLivroPorTitulo(String titulo, AtualizaLivroDto dto) {
-        Livro livro = (Livro) livroValidador.validaSeLivroExiste(titulo);
+
+    public LivroDto atualizarLivroPorId(Long id, AtualizaLivroDto dto) {
+        Livro livro = livroRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Livro com ID " + id + " não encontrado"));
         livroMapper.atualizaDto(dto, livro);
         livroRepository.save(livro);
         return livroMapper.toDto(livro);
     }
 
-    /**
-     * Listar todos os livros (versão manual sem mapper)
-     */
     public List<LivroDto> listarLivros() {
         return livroRepository.findAll().stream()
                 .map(l -> new LivroDto(
@@ -97,29 +77,5 @@ public class LivroService {
                 .collect(Collectors.toList());
     }
 
-
-
-    /**
-     * Atualização parcial (PATCH)
-     */
-
-
-
-    public LivroDto atualizarParcial(String titulo, Map<String, Object> updates) throws ExceptionPersonalizada {
-        Livro livro = (Livro) buscarLivroPorTitulo(titulo);
-
-        updates.forEach((campo, valor) -> {
-            switch (campo) {
-                case "nome" -> livro.setNome((String) valor);
-                case "titulo" -> livro.setTitulo((String) valor);
-                case "categoria" -> livro.setCategoria((String) valor);
-                case "isbn" -> livro.setIsbn((String) valor);
-                case "dataPublicacao" -> livro.setDataPublicacao(LocalDate.parse((String) valor));
-            }
-        });
-
-        livroRepository.save(livro);
-        return livroMapper.toDto(livro);
-    }
 
 }

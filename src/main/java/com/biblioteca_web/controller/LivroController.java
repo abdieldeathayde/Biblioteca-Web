@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,25 +45,21 @@ public class LivroController {
         return ResponseEntity.ok(livroDto);
     }
 
-    @DeleteMapping
-    public ResponseEntity<String> deletarLivroPorTitulo(
-            @RequestParam @NotBlank(message = "O titulo é obrigatório") String titulo) {
-        livroService.deletarLivroPorTitulo(titulo);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deletarLivroPorId(@PathVariable Long id) {
+        livroService.deletarLivroPorId(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Livro deletado com sucesso!");
     }
 
-    @PutMapping
-    public ResponseEntity<LivroDto> atualizarLivroPorTitulo(
-            @RequestParam @NotNull(message = "O titulo não pode ser nulo!") String titulo,
-            @RequestBody @Valid AtualizaLivroDto livroDto){
-        LivroDto livroAtualizado = livroService.atualizarLivroPorTitulo(titulo, livroDto);
+
+    @PutMapping("/{id}")
+    public ResponseEntity<LivroDto> atualizarLivroPorId(
+            @PathVariable Long id,
+            @RequestBody @Valid AtualizaLivroDto livroDto) {
+        LivroDto livroAtualizado = livroService.atualizarLivroPorId(id, livroDto);
         return ResponseEntity.ok(livroAtualizado);
     }
 
-    @PatchMapping("/{titulo}")
-    public ResponseEntity<LivroDto> atualizarParcialmente(@PathVariable String titulo,
-                                                          @RequestBody Map<String, Object> updates) throws ExceptionPersonalizada {
-        LivroDto recursoAtualizado = livroService.atualizarParcial(titulo, updates);
-        return ResponseEntity.ok(recursoAtualizado);
-    }
+
+
 }
